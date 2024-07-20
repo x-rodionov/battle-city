@@ -51,6 +51,14 @@
             class="octo-body"></path>
     </svg>
   </a>
+  <script>
+	document.onkeydown = event => {
+		if (event.code === "KeyF") {
+			const screens = document.getElementsByClassName('screen');
+			if (screens) screens[0].requestFullscreen();
+		}
+	};
+  </script>
 </body>
 
 </html>
