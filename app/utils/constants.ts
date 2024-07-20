@@ -82,7 +82,7 @@ export const PLAYER_CONFIGS: { [key: string]: PlayerConfig } = {
       left: 'KeyA',
       down: 'KeyS',
       right: 'KeyD',
-      fire: 'KeyJ',
+      fire: 'KeyE',
     },
     spawnPos: {
       x: 4 * BLOCK_SIZE,
