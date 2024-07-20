@@ -37,9 +37,18 @@ If any bug is found during the game, welcome to mention [issue](https://github.c
 
 ### Local development
 
-1.  Klong project to the local area
-2.  Run `yarn instant` to install dependencies (or use` npm install`)
-3.  Run the `yarn start` to open the webpack-dev-server, and open the` localhost: 8080` in the browser
-4.  Run `yarn build` to pack the production version, package output under the` distal/`folder
+#### Legacy instruction
 
-`devConfig.js` It contains some configuration items for development, pay attention to modifying the configuration in the file, you need to restart the Webpack-DEV-Server
+1. Clone project to the local area
+2. Run `yarn install` to install dependencies (or use `npm install`)
+3. Run the `yarn start` to open the webpack-dev-server, and open the `localhost: 8080` in the browser
+4. Run `yarn build` to pack the production version, package output under the `dist/` folder
+
+#### Modern instruction
+
+1. Clone project to the local area
+2. Run `npm install` to install dependencies (`yarn install` doesn't work)
+3. Run `yarn start` to open the webpack-dev-server, and open the `localhost: 8080` in the browser - this works with visual bugs
+4. Run `export NODE_OPTIONS=--openssl-legacy-provider && yarn build` to pack the production version, package output under the `dist/` folder - this works good
+
+`devConfig.js` contains some configuration items for development, pay attention to modifying the configuration in the file, you need to restart the Webpack-DEV-Server
