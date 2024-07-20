@@ -31,10 +31,13 @@ const AboutGame = () => (
   <div>
     <p>
       <b>ESC</b>
-      ：Passing the game
+      ：Pause the game
       <br />
-      <b>Retreat</b>
+      <b>Back (in browser history)</b>
       ：Back to the level selection page
+	  <br />
+      <b>F</b>
+      ：Fullscreen mode
     </p>
     <p>
       Player 1
