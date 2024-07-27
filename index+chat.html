@@ -402,6 +402,33 @@
 				console.log(error.stack);
 			}
 		}
+		//start screencast
+		async function screencast_to_peer() {
+			if (!incoming_peer_id)
+				return;
+			const peer_id = incoming_peer_id;
+			let stream;
+			try {
+				stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true, systemAudio: "include" });
+			}
+			catch (error) {
+				log('app_log', `failed to get local screen stream. ${error}`);
+				console.error(error);
+				console.log(error.stack);
+				return;
+			}
+			try {
+				const outgoing_call = my_peer.call(peer_id, stream);
+				const video = add_call_block(outgoing_call.connectionId);
+				const render_video = stream => video.srcObject = stream;
+				outgoing_call.on('stream', render_video);
+			}
+			catch (error) {
+				log('app_log', `failed to start play screen cast. ${error}`);
+				console.error(error);
+				console.log(error.stack);
+			}
+		}
 	</script>
 <script type="text/javascript" src="main-97e1a9.js"></script></body>
 
