@@ -51,10 +51,10 @@ const AboutGame = () => (
     <p>
       Player 2
       <br />
-      <b>Arrow key</b>
+      <b>IJKL</b>
       ：move
       <br />
-      <b>/</b>
+      <b>O</b>
       ：fire
     </p>
   </div>

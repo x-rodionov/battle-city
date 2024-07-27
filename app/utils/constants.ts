@@ -92,11 +92,11 @@ export const PLAYER_CONFIGS: { [key: string]: PlayerConfig } = {
   player2: {
     color: 'green',
     control: {
-      up: 'ArrowUp',
-      left: 'ArrowLeft',
-      down: 'ArrowDown',
-      right: 'ArrowRight',
-      fire: 'Slash',
+      up: 'KeyI',
+      left: 'KeyJ',
+      down: 'KeyK',
+      right: 'KeyL',
+      fire: 'KeyO',
     },
     spawnPos: {
       x: 8 * BLOCK_SIZE,

@@ -77,12 +77,23 @@
 		</table>
 	</div>
 	<script>
-		document.onkeydown = event => {
-			if (event.code === "KeyF") {
-				const screens = document.getElementsByClassName('screen');
-				if (screens) screens[0].requestFullscreen();
+		const client_keys = {
+			KeyI: true, KeyJ: true, KeyK: true, KeyL: true, KeyO: true,
+		}
+		document.addEventListener('keydown', event => {
+			if (is_game_server) {
+				if (event.code === "KeyF") {
+					const screens = document.getElementsByClassName('screen');
+					if (screens) screens[0].requestFullscreen();
+				}
 			}
-		};
+			else if (event.code in client_keys) send_input('keydown', event.code);
+		});
+		document.addEventListener('keyup', event => {
+			if (is_game_server)
+				;
+			else if (event.code in client_keys) send_input('keyup', event.code);
+		});
 	</script>
 	<script>
 		let my_peer = new window.Peer();
@@ -111,7 +122,7 @@
 			new_message.innerText = message;
 			document.querySelector(`#${target}`).appendChild(new_message);
 		}
-		let interval_to_clear, is_game_server = true, play_in_progress;
+		let interval_to_clear, is_game_server = true, play_in_progress, main_connection;
 		function initialize_fields() {
 			function init_text(id) {
 				const field_element = document.querySelector(`#${id}`);
@@ -163,6 +174,10 @@
 			const nickname = document.querySelector('#my_nickname').value;
 			return JSON.stringify({ nickname, message });
 		}
+		window.send_input = function(event_type, code) {
+			if (!main_connection) return;
+			main_connection.send(format_message(`${event_type}^${code}`))
+		}
 		function add_chat_block(connection) {
 			const connection_id = connection.connectionId;
 			const peer_id = connection.peer;
@@ -194,6 +209,7 @@
 			block.appendChild(message);
 			block.appendChild(send);
 			chat_blocks.appendChild(block);
+			main_connection = connection;
 		}
 		function update_nickname(connection, nickname) {
 			const connection_id = connection.connectionId;
@@ -230,13 +246,25 @@
 				console.log(error.stack);
 			};
 		});
+		// emulate input
+		window.emulate_input = function(event_type, code) {
+			const eventObj = document.createEvent("Events");
+        	eventObj.initEvent(event_type, true, true);
+        	eventObj.code = code;
+        	document.dispatchEvent(eventObj);
+		}
 		// handle incoming connection
 		my_peer.on('connection', (incoming_connection) => {
 			log('app_log', `receiving connection from peer ${incoming_connection.peer}...`);
 			incoming_connection.on('data', (data) => {
 				const { nickname, message } = JSON.parse(data);
 				update_nickname(incoming_connection, nickname);
-				log(incoming_connection.connectionId, message, 'received');
+				if (message.indexOf("^") > -1) {
+					const p = message.split("^");
+					emulate_input(p[0], p[1]);
+				}
+				else
+					log(incoming_connection.connectionId, message, 'received');
 			});
 			incoming_connection.on('open', () => {
 				add_chat_block(incoming_connection);
@@ -326,6 +354,6 @@
 			document.getElementById("screencast_button").disabled = true;
 		}
 	</script>
-<script type="text/javascript" src="main-97e1a9.js"></script></body>
+<script type="text/javascript" src="main-67d5f4.js"></script></body>
 
 </html>
