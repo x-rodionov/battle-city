@@ -145,7 +145,7 @@
 			new_message.innerText = message;
 			document.querySelector(`#${target}`).appendChild(new_message);
 		}
-		let interval_to_clear, is_game_server = true, incoming_peer_id;
+		let interval_to_clear, is_game_server = true, incoming_peer_id, play_in_progress;
 		function initialize_fields() {
 			function init_text(id) {
 				const field_element = document.querySelector(`#${id}`);
@@ -301,7 +301,7 @@
 				return;
 			}
 			try {
-				incoming_call.answer(stream);
+				incoming_call.answer(play_in_progress ? undefined : stream);
 				const video = add_call_block(incoming_call.connectionId);
 				const render_video = stream => video.srcObject = stream;
 				incoming_call.on('stream', render_video);
@@ -400,7 +400,9 @@
 				log('app_log', `failed to start call. ${error}`);
 				console.error(error);
 				console.log(error.stack);
+				return;
 			}
+			play_in_progress = true;
 		}
 		//start screencast
 		async function screencast_to_peer() {
