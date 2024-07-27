@@ -122,8 +122,8 @@
 			new_message.innerText = message;
 			document.querySelector(`#${target}`).appendChild(new_message);
 		}
-		let interval_to_clear, is_game_server = true, play_in_progress, main_connection;
-		function initialize_fields() {
+		let interval_to_clear, is_game_server = true, play_in_progress, main_connection, use_video;
+		async function initialize_fields() {
 			function init_text(id) {
 				const field_element = document.querySelector(`#${id}`);
 				const field = localStorage.getItem(id);
@@ -154,6 +154,16 @@
 				document.getElementById("container").children[0].appendChild(chat);
 				clearInterval(interval_to_clear);
 			}, 300);
+
+			try {
+				await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+				use_video = true;
+			}
+			catch (error) {
+				console.error(error);
+				console.log(error.stack);
+				use_video = false;
+			}
 		}
 		initialize_fields();
 		async function copy_link_to_clipboard() {
@@ -222,7 +232,7 @@
 			log('app_log', `receiving call from peer...`);
 			let stream;
 			try {
-				stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+				stream = await navigator.mediaDevices.getUserMedia({ video: use_video, audio: true });
 			}
 			catch (error) {
 				log('app_log', `failed to get local stream. ${error}`);
@@ -299,7 +309,7 @@
 
 			let stream;
 			try {
-				stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+				stream = await navigator.mediaDevices.getUserMedia({ video: use_video, audio: true });
 			}
 			catch (error) {
 				log('app_log', `failed to get local stream. ${error}`);
@@ -330,7 +340,7 @@
 			let stream;
 			try {
 				stream = await navigator.mediaDevices.getDisplayMedia({
-					video: true, audio: true, systemAudio: "include", preferCurrentTab: true, selfBrowserSurface: "include",
+					video: true, systemAudio: "include", preferCurrentTab: true, selfBrowserSurface: "include",
 				});
 			}
 			catch (error) {
