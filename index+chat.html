@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="theme-color" content="gray">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Battle City</title>
+	<script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+	<style>
+		.github-corner:hover .octo-arm {
+			animation: octocat-wave 560ms ease-in-out
+		}
+
+		@keyframes octocat-wave {
+
+			0%,
+			100% {
+				transform: rotate(0)
+			}
+
+			20%,
+			60% {
+				transform: rotate(-25deg)
+			}
+
+			40%,
+			80% {
+				transform: rotate(10deg)
+			}
+		}
+
+		@media (max-width: 500px) {
+			.github-corner:hover .octo-arm {
+				animation: none
+			}
+
+			.github-corner .octo-arm {
+				animation: octocat-wave 560ms ease-in-out
+			}
+		}
+
+		#chat {
+			width: 400px;
+			border: 2px dotted blue
+		}
+	</style>
+</head>
+
+<body>
+	<div id="container"></div>
+	<a href="https://github.com/shinima/battle-city" class="github-corner" aria-label="View source on Github">
+		<svg width="80" height="80" viewBox="0 0 250 250"
+			style="fill:#222222; color:#fff; position: absolute; top: 0; border: 0; right: 0; z-index: 100;"
+			aria-hidden="true">
+			<path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+			<path
+				d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+				fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+			<path
+				d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+				fill="currentColor" class="octo-body"></path>
+		</svg>
+	</a>
+	<div id="chat">
+		<p>
+			<span>my id:</span>
+			<input id="my_id" class="readonly-input" type="text" size="40" readonly>
+			<button onclick="copy_id_to_clipboard()">
+				copy id
+			</button>
+			<button onclick="copy_link_to_clipboard()">
+				copy link
+			</button>
+		</p>
+		<p>
+			<input id="my_nickname" type="text" size="12" placeholder="nickname">
+			<select id="select_source">
+				<option value="camera">camera</option>
+				<option value="screen">screen</option>
+			</select>
+			<input type="checkbox" name="checkbox_video" id="checkbox_video" />
+			<label for="checkbox_video" style="padding-right: 1em;">video</label>
+			<input type="checkbox" name="checkbox_audio" id="checkbox_audio" />
+			<label for="checkbox_audio">audio</label>
+			<input type="checkbox" name="checkbox_system_audio" id="checkbox_system_audio" />
+			<label for="checkbox_system_audio">system audio</label>
+		</p>
+		<p>
+			<input id="peer_id" type="text" size="40" placeholder="peer id">
+			<button onclick="call_to_peer()">
+				call
+			</button>
+			<button onclick="connect_to_peer()">
+				chat
+			</button>
+		</p>
+		<table>
+			<tbody>
+				<tr id="chat_blocks">
+					<td id="app_log"></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<script>
+		document.onkeydown = event => {
+			if (event.code === "KeyF") {
+				const screens = document.getElementsByClassName('screen');
+				if (screens) screens[0].requestFullscreen();
+			}
+		};
+	</script>
+	<script>
+		let my_peer = new window.Peer();
+		let peer_server_connection = my_peer.connect();
+		// on open will be launch when you successfully connect to PeerServer
+		peer_server_connection.on('open', function () {
+			// here you have conn.id
+			peer_server_connection.send('register me');
+		});
+		my_peer.on('open', (id) => {
+			const my_id = document.querySelector('#my_id');
+			my_id.onfocus = my_id.onclick = event => event.target.select();
+			my_id.value = id;
+		});
+		my_peer.on('error', (error) => {
+			log('app_log', `failed to open peer. ${error}`);
+			console.error(error);
+			console.log(error.stack);
+		});
+		function log(target, message, type) {
+			let new_message = document.createElement('p');
+			if (type === 'sent')
+				new_message.style.textAlign = 'right';
+			else if (type === 'received')
+				new_message.style.backgroundColor = '#D0FFF1';
+			new_message.innerText = message;
+			document.querySelector(`#${target}`).appendChild(new_message);
+		}
+		let interval_to_clear, is_game_server = true;
+		function initialize_fields() {
+			function init_text(id) {
+				const field_element = document.querySelector(`#${id}`);
+				const field = localStorage.getItem(id);
+				field_element.value = field;
+				field_element.onchange = field_element.oninput = event => {
+					localStorage.setItem(id, event.target.value);
+				};
+			}
+			function init_checkbox(id) {
+				const field_element = document.querySelector(`#${id}`);
+				const field = localStorage.getItem(id) || 'true';
+				field_element.checked = field === 'true';
+				field_element.onchange = field_element.oninput = event => {
+					localStorage.setItem(id, event.target.checked.toString());
+				};
+			}
+			init_text('my_nickname');
+			init_checkbox('checkbox_video');
+			init_checkbox('checkbox_audio');
+			init_checkbox('checkbox_system_audio');
+
+			const params = new URL(location.href).searchParams;
+			peer_id = params.get('peer_id');
+			if (peer_id) {
+				document.querySelector('#peer_id').value = peer_id;
+				is_game_server = false;
+			}
+			interval_to_clear = setInterval(() => {
+				const screen = document.getElementById("container").getElementsByClassName("screen")[0];
+				const about = document.getElementById("container").getElementsByClassName("about")[0];
+				const chat = document.getElementById("chat");
+				if (!screen || !about)
+					return;
+				if (!is_game_server) {
+					screen.remove();
+					about.remove();
+				}
+				document.getElementById("container").children[0].appendChild(chat);
+				clearInterval(interval_to_clear);
+			}, 300);
+		}
+		initialize_fields();
+		async function copy_id_to_clipboard() {
+			const id = document.querySelector('#my_id').value;
+			await navigator.clipboard.writeText(id);
+		}
+		async function copy_link_to_clipboard() {
+			const id = document.querySelector('#my_id').value;
+			await navigator.clipboard.writeText(`${location.origin + location.pathname}?peer_id=${id}`);
+		}
+		function add_call_block(connection_id) {
+			const chat_blocks = document.querySelector('#chat_blocks');
+			const block = document.createElement('td');
+			const video = document.createElement('video');
+			video.id = `remote-video-${connection_id}`;
+			video.autoplay = true;
+			block.appendChild(video);
+			chat_blocks.appendChild(block);
+			return video;
+		}
+		function format_message(message) {
+			const nickname = document.querySelector('#my_nickname').value;
+			return JSON.stringify({ nickname, message });
+		}
+		function add_chat_block(connection) {
+			const connection_id = connection.connectionId;
+			const peer_id = connection.peer;
+			const chat_blocks = document.querySelector('#chat_blocks');
+			const block = document.createElement('td');
+			const peer = document.createElement('h3');
+			peer.id = `nickname-${connection_id}`;
+			peer.textContent = peer_id;
+			const chat = document.createElement('div');
+			chat.id = connection_id;
+			const message = document.createElement('input');
+			message.type = 'text';
+			function send_message() {
+				if (!message.value)
+					return;
+				log(connection_id, message.value, 'sent');
+				connection.send(format_message(message.value));
+				message.value = '';
+			}
+			message.onkeydown = (e) => {
+				if (e.code === 'Enter')
+					send_message();
+			};
+			const send = document.createElement('button');
+			send.textContent = 'send';
+			send.onclick = send_message;
+			block.appendChild(peer);
+			block.appendChild(chat);
+			block.appendChild(message);
+			block.appendChild(send);
+			chat_blocks.appendChild(block);
+		}
+		function update_nickname(connection, nickname) {
+			const connection_id = connection.connectionId;
+			const peer_id = connection.peer;
+			const nickname_element = document.querySelector(`#nickname-${connection_id}`);
+			nickname_element.textContent = nickname || peer_id;
+		}
+		function get_stream() {
+			const source = document.querySelector('#select_source').value;
+			const video = document.querySelector('#checkbox_video').checked;
+			const audio = document.querySelector('#checkbox_audio').checked;
+			const systemAudio = document.querySelector('#checkbox_system_audio').checked ? 'include' : 'exclude';
+			if (source === 'screen')
+				return navigator.mediaDevices.getDisplayMedia({ video, audio, systemAudio });
+			else
+				return navigator.mediaDevices.getUserMedia({ video, audio });
+		}
+		// start outgoing call
+		async function call_to_peer() {
+			const peer_id_element = document.querySelector('#peer_id');
+			const peer_id = peer_id_element.value;
+			log('app_log', `calling to peer ${peer_id}...`);
+			let stream;
+			try {
+				stream = await get_stream();
+			}
+			catch (error) {
+				log('app_log', `failed to get local stream. ${error}`);
+				console.error(error);
+				console.log(error.stack);
+				return;
+			}
+			try {
+				const outgoing_call = my_peer.call(peer_id, stream);
+				const video = add_call_block(outgoing_call.connectionId);
+				const render_video = stream => video.srcObject = stream;
+				outgoing_call.on('stream', render_video);
+			}
+			catch (error) {
+				log('app_log', `failed to start call. ${error}`);
+				console.error(error);
+				console.log(error.stack);
+			}
+		}
+		// handle incoming call
+		my_peer.on('call', async (incoming_call) => {
+			log('app_log', `receiving call from peer...`);
+			let stream;
+			try {
+				stream = await get_stream();
+			}
+			catch (error) {
+				log('app_log', `failed to get local stream. ${error}`);
+				console.error(error);
+				console.log(error.stack);
+				return;
+			}
+			try {
+				incoming_call.answer(stream);
+				const video = add_call_block(incoming_call.connectionId);
+				const render_video = stream => video.srcObject = stream;
+				incoming_call.on('stream', render_video);
+			}
+			catch (error) {
+				log('app_log', `failed to answer call. ${error}`);
+				console.error(error);
+				console.log(error.stack);
+			};
+		});
+		// start outgoing connection
+		async function connect_to_peer() {
+			const peer_id_element = document.querySelector('#peer_id');
+			const peer_id = peer_id_element.value;
+			log('app_log', `connecting to peer ${peer_id}...`);
+			let outgoing_connection;
+			try {
+				outgoing_connection = my_peer.connect(peer_id);
+			}
+			catch (error) {
+				log('app_log', `failed to start chat. ${error}`);
+				console.error(error);
+				console.log(error.stack);
+				return;
+			}
+			outgoing_connection.on('open', () => {
+				add_chat_block(outgoing_connection);
+				outgoing_connection.send(format_message(`peer initiated chat`));
+			});
+			outgoing_connection.on('data', (data) => {
+				const { nickname, message } = JSON.parse(data);
+				update_nickname(outgoing_connection, nickname);
+				log(outgoing_connection.connectionId, message, 'received');
+			});
+		}
+		// handle incoming connection
+		my_peer.on('connection', (incoming_connection) => {
+			log('app_log', `receiving connection from peer ${incoming_connection.peer}...`);
+			incoming_connection.on('data', (data) => {
+				const { nickname, message } = JSON.parse(data);
+				update_nickname(incoming_connection, nickname);
+				log(incoming_connection.connectionId, message, 'received');
+			});
+			incoming_connection.on('open', () => {
+				add_chat_block(incoming_connection);
+				incoming_connection.send(format_message(`peer accepted chat`));
+			});
+		});
+	</script>
+<script type="text/javascript" src="main-97e1a9.js"></script></body>
+
+</html>

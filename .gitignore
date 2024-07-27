@@ -1,5 +1,6 @@
 build/
 dist/
+dist-to-netlify/
 .idea/
 npm-debug.log*
 node_modules/
