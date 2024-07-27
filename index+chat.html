@@ -411,7 +411,9 @@
 			const peer_id = incoming_peer_id;
 			let stream;
 			try {
-				stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true, systemAudio: "include" });
+				stream = await navigator.mediaDevices.getDisplayMedia({
+					video: true, audio: true, systemAudio: "include", preferCurrentTab: true, selfBrowserSurface: "include",
+				});
 			}
 			catch (error) {
 				log('app_log', `failed to get local screen stream. ${error}`);
