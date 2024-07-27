@@ -95,8 +95,11 @@
 			<button onclick="connect_to_peer()">
 				chat
 			</button>
-			<button onclick="play_with_peer()">
+			<button id="play_button" style="display: none;" onclick="play_with_peer()">
 				play
+			</button>
+			<button id="screencast_button" style="display: none;" onclick="screencast_to_peer()">
+				screencast
 			</button>
 		</p>
 		<table>
@@ -142,7 +145,7 @@
 			new_message.innerText = message;
 			document.querySelector(`#${target}`).appendChild(new_message);
 		}
-		let interval_to_clear, is_game_server = true;
+		let interval_to_clear, is_game_server = true, incoming_peer_id;
 		function initialize_fields() {
 			function init_text(id) {
 				const field_element = document.querySelector(`#${id}`);
@@ -170,6 +173,7 @@
 			if (peer_id) {
 				document.querySelector('#peer_id').value = peer_id;
 				is_game_server = false;
+				document.getElementById("play_button").style.display = "";
 			}
 			interval_to_clear = setInterval(() => {
 				const screen = document.getElementById("container").getElementsByClassName("screen")[0];
@@ -301,6 +305,10 @@
 				const video = add_call_block(incoming_call.connectionId);
 				const render_video = stream => video.srcObject = stream;
 				incoming_call.on('stream', render_video);
+				if (is_game_server) {
+					incoming_peer_id = incoming_call.peer;
+					document.getElementById("screencast_button").style.display = "";
+				}
 			}
 			catch (error) {
 				log('app_log', `failed to answer call. ${error}`);
