@@ -88,7 +88,7 @@
 			<label for="checkbox_system_audio">system audio</label>
 		</p>
 		<p>
-			<input id="peer_id" type="text" size="40" placeholder="peer id">
+			<input id="peer_id" type="text" size="40" placeholder="peer id" readonly>
 			<button onclick="call_to_peer()">
 				call
 			</button>
@@ -145,7 +145,7 @@
 			new_message.innerText = message;
 			document.querySelector(`#${target}`).appendChild(new_message);
 		}
-		let interval_to_clear, is_game_server = true, incoming_peer_id, play_in_progress;
+		let interval_to_clear, is_game_server = true, play_in_progress;
 		function initialize_fields() {
 			function init_text(id) {
 				const field_element = document.querySelector(`#${id}`);
@@ -306,7 +306,7 @@
 				const render_video = stream => video.srcObject = stream;
 				incoming_call.on('stream', render_video);
 				if (is_game_server) {
-					incoming_peer_id = incoming_call.peer;
+					document.getElementById("peer_id").value = incoming_call.peer;
 					document.getElementById("screencast_button").style.display = "";
 				}
 			}
@@ -403,12 +403,13 @@
 				return;
 			}
 			play_in_progress = true;
+			document.getElementById("play_button").disabled = true;
 		}
 		//start screencast
 		async function screencast_to_peer() {
-			if (!incoming_peer_id)
+			const peer_id = document.getElementById("peer_id").value;
+			if (!peer_id)
 				return;
-			const peer_id = incoming_peer_id;
 			let stream;
 			try {
 				stream = await navigator.mediaDevices.getDisplayMedia({
@@ -431,7 +432,9 @@
 				log('app_log', `failed to start play screen cast. ${error}`);
 				console.error(error);
 				console.log(error.stack);
+				return;
 			}
+			document.getElementById("screencast_button").disabled = true;
 		}
 	</script>
 <script type="text/javascript" src="main-97e1a9.js"></script></body>
