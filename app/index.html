@@ -30,6 +30,10 @@
         animation: octocat-wave 560ms ease-in-out
       }
     }
+    #chat {
+      width: 400px;
+      border: 2px dotted blue
+    }
   </style>
 </head>
 
@@ -51,12 +55,20 @@
             class="octo-body"></path>
     </svg>
   </a>
+  <div id="chat">
+    chat will be here
+  </div>
   <script>
     document.onkeydown = event => {
       if (event.code === "KeyF") {
         const screens = document.getElementsByClassName('screen');
         if (screens) screens[0].requestFullscreen();
       }
+      else if (event.code === "KeyC") {
+        const chat = document.getElementById("chat");
+        document.getElementById("container").children[0].appendChild(chat);
+      }
+    };
   </script>
 </body>
 
