@@ -95,6 +95,9 @@
 			<button onclick="connect_to_peer()">
 				chat
 			</button>
+			<button onclick="play_with_peer()">
+				play
+			</button>
 		</p>
 		<table>
 			<tbody>
@@ -343,6 +346,54 @@
 				incoming_connection.send(format_message(`peer accepted chat`));
 			});
 		});
+		// start play
+		async function play_with_peer() {
+			const peer_id_element = document.querySelector('#peer_id');
+			const peer_id = peer_id_element.value;
+			log('app_log', `playing to peer ${peer_id}...`);
+
+			let outgoing_connection;
+			try {
+				outgoing_connection = my_peer.connect(peer_id);
+			}
+			catch (error) {
+				log('app_log', `failed to start play. ${error}`);
+				console.error(error);
+				console.log(error.stack);
+				return;
+			}
+			outgoing_connection.on('open', () => {
+				add_chat_block(outgoing_connection);
+				outgoing_connection.send(format_message(`peer initiated play`));
+			});
+			outgoing_connection.on('data', (data) => {
+				const { nickname, message } = JSON.parse(data);
+				update_nickname(outgoing_connection, nickname);
+				log(outgoing_connection.connectionId, message, 'received');
+			});
+
+			let stream;
+			try {
+				stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+			}
+			catch (error) {
+				log('app_log', `failed to get local stream. ${error}`);
+				console.error(error);
+				console.log(error.stack);
+				return;
+			}
+			try {
+				const outgoing_call = my_peer.call(peer_id, stream);
+				const video = add_call_block(outgoing_call.connectionId);
+				const render_video = stream => video.srcObject = stream;
+				outgoing_call.on('stream', render_video);
+			}
+			catch (error) {
+				log('app_log', `failed to start call. ${error}`);
+				console.error(error);
+				console.log(error.stack);
+			}
+		}
 	</script>
 <script type="text/javascript" src="main-97e1a9.js"></script></body>
 
