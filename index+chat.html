@@ -61,12 +61,6 @@
 		</p>
 		<p>
 			<input id="peer_id" type="text" size="40" placeholder="peer id" readonly>
-			<button id="peercall_button" style="display: none;" onclick="peercall_to_peer()">
-				peercall
-			</button>
-			<button id="screencast_button" style="display: none;" onclick="screencast_to_peer()">
-				screencast
-			</button>
 		</p>
 		<p>
 			<span id="player_1_gamepad" style="color: lightgray">player 1 gamepad</span>
@@ -351,8 +345,6 @@
 				incoming_connection.send(format_message(`peer accepted play`));
 				if (is_game_server) {
 					document.getElementById("peer_id").value = incoming_connection.peer;
-					document.getElementById("peercall_button").style.display = "";
-					document.getElementById("screencast_button").style.display = "";
 					setTimeout(peercall_to_peer, 300);
 				}
 			});
@@ -410,7 +402,6 @@
 				console.log(error.stack);
 				return;
 			}
-			document.getElementById("peercall_button").disabled = true;
 		}
 
 		// start screencast
@@ -442,7 +433,6 @@
 				console.log(error.stack);
 				return;
 			}
-			document.getElementById("screencast_button").disabled = true;
 		}
 	</script>
 <script type="text/javascript" src="main-67d5f4.js"></script></body>
