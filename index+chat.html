@@ -68,6 +68,14 @@
 				screencast
 			</button>
 		</p>
+		<p>
+			<select id="active_gamepad_number">
+				<option value="0">gamepad 1</option>
+				<option value="1">gamepad 2</option>
+				<option value="2">gamepad 3</option>
+				<option value="3">gamepad 4</option>
+			</select>
+		</p>
 		<table>
 			<tbody>
 				<tr id="chat_blocks">
@@ -122,6 +130,39 @@
 			new_message.innerText = message;
 			document.querySelector(`#${target}`).appendChild(new_message);
 		}
+
+		const gamepad_index_select = document.getElementById('active_gamepad_number');
+		function init_gamepad_index() {
+			if (!gamepad_index_select)
+				return;
+			gamepad_index_select.onchange = () => {
+				localStorage.setItem('gamepad_index', gamepad_index_select.value);
+			};
+			const gamepad_index = localStorage.getItem('gamepad_index');
+			if (gamepad_index === null)
+				return;
+			gamepad_index_select.value = gamepad_index;
+		}
+		init_gamepad_index();
+
+		const gamepad_buttons_pressed = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
+		const gamepad_to_key = {12: "KeyI", 13: "KeyK", 14: "KeyJ", 15: "KeyL", 0: "KeyO"}
+		window.requestAnimationFrame(gamepad_loop);
+		function gamepad_loop() {
+			const gamepads = navigator.getGamepads();
+			const gamepad_index = parseInt(gamepad_index_select.value);
+			const gamepad = gamepads ? gamepads[gamepad_index] : null;
+			if (gamepad) {
+				for (let button in gamepad_to_key) {
+					if (gamepad.buttons[button].pressed && !gamepad_buttons_pressed[button]) window.emulate_input("keydown", gamepad_to_key[button]);
+					if (!gamepad.buttons[button].pressed && gamepad_buttons_pressed[button]) window.emulate_input("keyup", gamepad_to_key[button]);
+				}
+				for (let i = 0; i < gamepad.buttons.length; ++i)
+					gamepad_buttons_pressed[i] = gamepad.buttons[i].pressed;
+			}
+			window.requestAnimationFrame(gamepad_loop);
+		}
+
 		let interval_to_clear, is_game_server = true, client_just_before_screencast, main_connection, use_video;
 		async function initialize_fields() {
 			function init_text(id) {
