@@ -54,15 +54,18 @@
 		<p>
 			<span>my id:</span>
 			<input id="my_id" class="readonly-input" type="text" size="40" readonly>
-			<button onclick="copy_link_to_clipboard()">
-				copy link
-			</button>
 			<input id="my_nickname" type="text" size="12" placeholder="nickname">
+			<button onclick="copy_link_to_clipboard()">
+				copy invite link for player 2
+			</button>
 		</p>
 		<p>
 			<input id="peer_id" type="text" size="40" placeholder="peer id" readonly>
 			<button id="play_button" style="display: none;" onclick="play_with_peer()">
 				play
+			</button>
+			<button id="peercall_button" style="display: none;" onclick="peercall_to_peer()">
+				peercall
 			</button>
 			<button id="screencast_button" style="display: none;" onclick="screencast_to_peer()">
 				screencast
@@ -122,7 +125,7 @@
 			new_message.innerText = message;
 			document.querySelector(`#${target}`).appendChild(new_message);
 		}
-		let interval_to_clear, is_game_server = true, play_in_progress, main_connection, use_video;
+		let interval_to_clear, is_game_server = true, client_just_before_screencast, main_connection, use_video;
 		async function initialize_fields() {
 			function init_text(id) {
 				const field_element = document.querySelector(`#${id}`);
@@ -241,20 +244,18 @@
 				return;
 			}
 			try {
-				incoming_call.answer(play_in_progress ? undefined : stream);
+				incoming_call.answer(client_just_before_screencast ? undefined : stream);
 				const video = add_call_block(incoming_call.connectionId);
 				const render_video = stream => video.srcObject = stream;
 				incoming_call.on('stream', render_video);
-				if (is_game_server) {
-					document.getElementById("peer_id").value = incoming_call.peer;
-					document.getElementById("screencast_button").style.display = "";
-				}
 			}
 			catch (error) {
 				log('app_log', `failed to answer call. ${error}`);
 				console.error(error);
 				console.log(error.stack);
+				return;
 			};
+			client_just_before_screencast = true;
 		});
 		// emulate input
 		window.emulate_input = function(event_type, code) {
@@ -278,7 +279,12 @@
 			});
 			incoming_connection.on('open', () => {
 				add_chat_block(incoming_connection);
-				incoming_connection.send(format_message(`peer accepted chat`));
+				incoming_connection.send(format_message(`peer accepted play`));
+				if (is_game_server) {
+					document.getElementById("peer_id").value = incoming_connection.peer;
+					document.getElementById("peercall_button").style.display = "";
+					document.getElementById("screencast_button").style.display = "";
+				}
 			});
 		});
 		// start play
@@ -306,7 +312,13 @@
 				update_nickname(outgoing_connection, nickname);
 				log(outgoing_connection.connectionId, message, 'received');
 			});
-
+			document.getElementById("play_button").disabled = true;
+		}
+		// start peercall
+		async function peercall_to_peer() {
+			const peer_id = document.getElementById("peer_id").value;
+			if (!peer_id)
+				return;
 			let stream;
 			try {
 				stream = await navigator.mediaDevices.getUserMedia({ video: use_video, audio: true });
@@ -329,10 +341,10 @@
 				console.log(error.stack);
 				return;
 			}
-			play_in_progress = true;
-			document.getElementById("play_button").disabled = true;
+			document.getElementById("peercall_button").disabled = true;
 		}
-		//start screencast
+
+		// start screencast
 		async function screencast_to_peer() {
 			const peer_id = document.getElementById("peer_id").value;
 			if (!peer_id)
