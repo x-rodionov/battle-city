@@ -69,12 +69,8 @@
 			</button>
 		</p>
 		<p>
-			<select id="active_gamepad_number">
-				<option value="0">gamepad 1</option>
-				<option value="1">gamepad 2</option>
-				<option value="2">gamepad 3</option>
-				<option value="3">gamepad 4</option>
-			</select>
+			<span id="player_1_gamepad" style="color: lightgray">player 1 gamepad</span>
+			<span id="player_2_gamepad" style="color: lightgray">player 2 gamepad</span>
 		</p>
 		<table>
 			<tbody>
@@ -130,35 +126,46 @@
 			new_message.innerText = message;
 			document.querySelector(`#${target}`).appendChild(new_message);
 		}
-
-		const gamepad_index_select = document.getElementById('active_gamepad_number');
-		function init_gamepad_index() {
-			if (!gamepad_index_select)
-				return;
-			gamepad_index_select.onchange = () => {
-				localStorage.setItem('gamepad_index', gamepad_index_select.value);
-			};
-			const gamepad_index = localStorage.getItem('gamepad_index');
-			if (gamepad_index === null)
-				return;
-			gamepad_index_select.value = gamepad_index;
-		}
-		init_gamepad_index();
-
-		const gamepad_buttons_pressed = [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false];
-		const gamepad_to_key = {12: "KeyI", 13: "KeyK", 14: "KeyJ", 15: "KeyL", 0: "KeyO"}
+		const gamepad_buttons_pressed = {
+			1: [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
+			2: [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
+		};
+		const gamepad_to_key = {
+			1: {12: "KeyW", 13: "KeyS", 14: "KeyA", 15: "KeyD", 0: "KeyE"},
+			2: {12: "KeyI", 13: "KeyK", 14: "KeyJ", 15: "KeyL", 0: "KeyO"},
+		};
 		window.requestAnimationFrame(gamepad_loop);
 		function gamepad_loop() {
 			const gamepads = navigator.getGamepads();
-			const gamepad_index = parseInt(gamepad_index_select.value);
-			const gamepad = gamepads ? gamepads[gamepad_index] : null;
-			if (gamepad) {
-				for (let button in gamepad_to_key) {
-					if (gamepad.buttons[button].pressed && !gamepad_buttons_pressed[button]) window.emulate_input("keydown", gamepad_to_key[button]);
-					if (!gamepad.buttons[button].pressed && gamepad_buttons_pressed[button]) window.emulate_input("keyup", gamepad_to_key[button]);
+			const players = {1: null, 2: null};
+			for (let i = 0; i < gamepads.length; ++i)
+				if (is_game_server) {
+					if (gamepads[i] && !players[1])
+						players[1] = gamepads[i];
+					else if (gamepads[i] && players[1] && !players[2]) {
+						players[2] = gamepads[i];
+						break;
+					}
 				}
-				for (let i = 0; i < gamepad.buttons.length; ++i)
-					gamepad_buttons_pressed[i] = gamepad.buttons[i].pressed;
+				else if (gamepads[i] && !players[2]) {
+					players[2] = gamepads[i];
+					break;
+				}
+			document.getElementById("player_1_gamepad").style.color = players[1] ? "black" : "lightgray";
+			document.getElementById("player_2_gamepad").style.color = players[2] ? "black" : "lightgray";
+			for (let i = 1; i <= 2; ++i) {
+				const gamepad = players[i];
+				if (!gamepad)
+					continue;
+				for (let button in gamepad_to_key[i]) {
+					const event_type = (gamepad.buttons[button].pressed && !gamepad_buttons_pressed[i][button]) ? "keydown" :
+						!gamepad.buttons[button].pressed && gamepad_buttons_pressed[i][button] ? "keyup" : "";
+					if (!event_type)
+						continue;
+					window.emulate_input(event_type, gamepad_to_key[i][button]);
+				}
+				for (let j = 0; j < gamepad.buttons.length; ++j)
+					gamepad_buttons_pressed[i][j] = gamepad.buttons[j].pressed;
 			}
 			window.requestAnimationFrame(gamepad_loop);
 		}
