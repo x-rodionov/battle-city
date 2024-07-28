@@ -61,9 +61,6 @@
 		</p>
 		<p>
 			<input id="peer_id" type="text" size="40" placeholder="peer id" readonly>
-			<button id="play_button" style="display: none;" onclick="play_with_peer()">
-				play
-			</button>
 			<button id="peercall_button" style="display: none;" onclick="peercall_to_peer()">
 				peercall
 			</button>
@@ -142,21 +139,7 @@
 			if (peer_id) {
 				document.querySelector('#peer_id').value = peer_id;
 				is_game_server = false;
-				document.getElementById("play_button").style.display = "";
 			}
-			interval_to_clear = setInterval(() => {
-				const screen = document.getElementById("container").getElementsByClassName("screen")[0];
-				const about = document.getElementById("container").getElementsByClassName("about")[0];
-				const chat = document.getElementById("chat");
-				if (!screen || !about)
-					return;
-				if (!is_game_server) {
-					screen.remove();
-					about.remove();
-				}
-				document.getElementById("container").children[0].appendChild(chat);
-				clearInterval(interval_to_clear);
-			}, 300);
 
 			try {
 				await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -167,6 +150,21 @@
 				console.log(error.stack);
 				use_video = false;
 			}
+
+			interval_to_clear = setInterval(() => {
+				const screen = document.getElementById("container").getElementsByClassName("screen")[0];
+				const about = document.getElementById("container").getElementsByClassName("about")[0];
+				const chat = document.getElementById("chat");
+				if (!screen || !about)
+					return;
+				document.getElementById("container").children[0].appendChild(chat);
+				clearInterval(interval_to_clear);
+				if (!is_game_server) {
+					screen.remove();
+					about.remove();
+					play_with_peer();
+				}
+			}, 300);
 		}
 		initialize_fields();
 		async function copy_link_to_clipboard() {
@@ -312,7 +310,6 @@
 				update_nickname(outgoing_connection, nickname);
 				log(outgoing_connection.connectionId, message, 'received');
 			});
-			document.getElementById("play_button").disabled = true;
 		}
 		// start peercall
 		async function peercall_to_peer() {
