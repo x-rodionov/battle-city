@@ -151,6 +151,18 @@
 				use_video = false;
 			}
 
+			if (!use_video) {
+				try {
+					await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+				}
+				catch (error) {
+					console.error(error);
+					console.log(error.stack);
+					alert("unable to play online without video or audio devices");
+					return;
+				}
+			}
+
 			interval_to_clear = setInterval(() => {
 				const screen = document.getElementById("container").getElementsByClassName("screen")[0];
 				const about = document.getElementById("container").getElementsByClassName("about")[0];
