@@ -305,6 +305,14 @@
 				client_just_before_screencast = true;
 				window.send_command("start_screencast");
 			}
+			else {
+				console.log("connection complete");
+				document.getElementById('chat').style.display = "none";
+				document.getElementById('incoming_video').style.height = "100vh";
+				document.getElementById('incoming_video').style.width = "50%";
+				document.getElementById('incoming_screencast').style.height = "100vh";
+				document.getElementById('incoming_screencast').style.width = "50%";
+			}
 		});
 		// emulate input
 		window.emulate_input = function(event_type, code) {
