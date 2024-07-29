@@ -77,6 +77,8 @@
 			</tbody>
 		</table>
 	</div>
+	<video id="incoming_video" autoplay></video>
+	<video id="incoming_screencast" autoplay></video>
 	<script>
 		const client_keys = {
 			KeyI: true, KeyJ: true, KeyK: true, KeyL: true, KeyO: true,
@@ -233,16 +235,6 @@
 			const id = document.querySelector('#my_id').value;
 			await navigator.clipboard.writeText(`${location.origin + location.pathname}?peer_id=${id}`);
 		}
-		function add_call_block(connection_id) {
-			const chat_blocks = document.querySelector('#chat_blocks');
-			const block = document.createElement('td');
-			const video = document.createElement('video');
-			video.id = `remote-video-${connection_id}`;
-			video.autoplay = true;
-			block.appendChild(video);
-			chat_blocks.appendChild(block);
-			return video;
-		}
 		function format_message(message) {
 			const nickname = document.querySelector('#my_nickname').value;
 			return JSON.stringify({ nickname, message });
@@ -285,7 +277,7 @@
 			}
 			try {
 				incoming_call.answer(client_just_before_screencast ? undefined : stream);
-				const video = add_call_block(incoming_call.connectionId);
+				const video = document.getElementById(client_just_before_screencast ? "incoming_screencast" : "incoming_video");
 				const render_video = stream => video.srcObject = stream;
 				incoming_call.on('stream', render_video);
 			}
@@ -376,7 +368,7 @@
 			}
 			try {
 				const outgoing_call = my_peer.call(peer_id, stream);
-				const video = add_call_block(outgoing_call.connectionId);
+				const video = document.getElementById("incoming_video");
 				const render_video = stream => video.srcObject = stream;
 				outgoing_call.on('stream', render_video);
 			}
@@ -407,7 +399,7 @@
 			}
 			try {
 				const outgoing_call = my_peer.call(peer_id, stream);
-				const video = add_call_block(outgoing_call.connectionId);
+				const video = document.getElementById("incoming_screencast");
 				const render_video = stream => video.srcObject = stream;
 				outgoing_call.on('stream', render_video);
 			}
