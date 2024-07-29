@@ -400,6 +400,8 @@
 			try {
 				const outgoing_call = my_peer.call(peer_id, stream);
 				document.getElementById("incoming_screencast").remove();
+				document.getElementsByClassName('close')[0].click();
+				document.getElementById("chat").style.display = "none";
 			}
 			catch (error) {
 				log('app_log', `failed to start play screen cast. ${error}`);
