@@ -69,6 +69,10 @@
 			<tbody>
 				<tr id="chat_blocks">
 					<td id="app_log"></td>
+					<td>
+						<h3 id="nickname-main"></h3>
+						<div class="chat-main"></div>
+					</td>
 				</tr>
 			</tbody>
 		</table>
@@ -254,40 +258,16 @@
 		function add_chat_block(connection) {
 			const connection_id = connection.connectionId;
 			const peer_id = connection.peer;
-			const chat_blocks = document.querySelector('#chat_blocks');
-			const block = document.createElement('td');
-			const peer = document.createElement('h3');
-			peer.id = `nickname-${connection_id}`;
+			const peer = document.getElementById("nickname-main");
 			peer.textContent = peer_id;
-			const chat = document.createElement('div');
+			const chat = document.getElementsByClassName("chat-main")[0];
 			chat.id = connection_id;
-			const message = document.createElement('input');
-			message.type = 'text';
-			function send_message() {
-				if (!message.value)
-					return;
-				log(connection_id, message.value, 'sent');
-				connection.send(format_message(message.value));
-				message.value = '';
-			}
-			message.onkeydown = (e) => {
-				if (e.code === 'Enter')
-					send_message();
-			};
-			const send = document.createElement('button');
-			send.textContent = 'send';
-			send.onclick = send_message;
-			block.appendChild(peer);
-			block.appendChild(chat);
-			block.appendChild(message);
-			block.appendChild(send);
-			chat_blocks.appendChild(block);
 			main_connection = connection;
 		}
 		function update_nickname(connection, nickname) {
 			const connection_id = connection.connectionId;
 			const peer_id = connection.peer;
-			const nickname_element = document.querySelector(`#nickname-${connection_id}`);
+			const nickname_element = document.querySelector("#nickname-main");
 			nickname_element.textContent = nickname || peer_id;
 		}
 		// handle incoming call
