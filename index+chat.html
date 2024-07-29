@@ -90,7 +90,7 @@
 			if (is_game_server && !main_connection) {
 				if (event.code === "KeyF") {
 					const screens = document.getElementsByClassName('screen');
-					screens && screens[0].requestFullscreen();
+					screens && screens.length && screens[0].requestFullscreen();
 				}
 			}
 			if (is_game_server && main_connection) {
@@ -186,7 +186,7 @@
 		let interval_to_clear, is_game_server = true, client_just_before_screencast, main_connection, use_video;
 		function modify_screen() {
 			const screens = document.getElementsByClassName('screen');
-			if (!screens) return;
+			if (!screens || !screens.length) return;
 			const screen = screens[0];
 			screen.removeAttribute('width');
 			screen.removeAttribute('height');
