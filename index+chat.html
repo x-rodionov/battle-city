@@ -148,6 +148,7 @@
 		};
 		window.requestAnimationFrame(gamepad_loop);
 		function gamepad_loop() {
+			modify_screen();
 			const gamepads = navigator.getGamepads();
 			const players = {1: null, 2: null};
 			for (let i = 0; i < gamepads.length; ++i)
@@ -183,6 +184,15 @@
 		}
 
 		let interval_to_clear, is_game_server = true, client_just_before_screencast, main_connection, use_video;
+		function modify_screen() {
+			const screens = document.getElementsByClassName('screen');
+			if (!screens) return;
+			const screen = screens[0];
+			screen.removeAttribute('width');
+			screen.removeAttribute('height');
+			screen.style.height = '100vh';
+			screen.style.width = '50%';
+		}
 		async function initialize_fields() {
 			function init_text(id) {
 				const field_element = document.querySelector(`#${id}`);
@@ -240,12 +250,8 @@
 					about.remove();
 					play_with_peer();
 				}
-				else {
-					screen.removeAttribute('width');
-					screen.removeAttribute('height');
-					screen.style.height = '100vh';
-					screen.style.width = '50%';
-				}
+				else
+					modify_screen();
 			}, 300);
 		}
 		initialize_fields();
