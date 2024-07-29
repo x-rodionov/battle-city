@@ -399,9 +399,7 @@
 			}
 			try {
 				const outgoing_call = my_peer.call(peer_id, stream);
-				const video = document.getElementById("incoming_screencast");
-				const render_video = stream => video.srcObject = stream;
-				outgoing_call.on('stream', render_video);
+				document.getElementById("incoming_screencast").remove();
 			}
 			catch (error) {
 				log('app_log', `failed to start play screen cast. ${error}`);
