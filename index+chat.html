@@ -214,9 +214,14 @@
 				const screen = document.getElementById("container").getElementsByClassName("screen")[0];
 				const about = document.getElementById("container").getElementsByClassName("about")[0];
 				const chat = document.getElementById("chat");
+				const incoming_video = document.getElementById("incoming_video");
+				const incoming_screencast = document.getElementById("incoming_screencast");
 				if (!screen || !about)
 					return;
+				document.getElementById("container").children[0].style.alignItems = 'flex-start';
 				document.getElementById("container").children[0].appendChild(chat);
+				document.getElementById("container").children[0].appendChild(incoming_video);
+				document.getElementById("container").children[0].appendChild(incoming_screencast);
 				clearInterval(interval_to_clear);
 				if (!is_game_server) {
 					screen.remove();
