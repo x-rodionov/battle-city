@@ -93,6 +93,10 @@
 					screens && screens[0].requestFullscreen();
 				}
 			}
+			if (is_game_server && main_connection) {
+				if (event.code === "KeyP")
+					document.getElementById("incoming_video").requestPictureInPicture();
+			}
 			if (!is_game_server) {
 				if (event.code === "KeyF") {
 					const container = document.getElementById('container');
