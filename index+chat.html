@@ -77,8 +77,8 @@
 			</tbody>
 		</table>
 	</div>
-	<video id="incoming_video" autoplay></video>
-	<video id="incoming_screencast" autoplay></video>
+	<video id="incoming_video" style="height: 8px; width: 8px;" autoplay></video>
+	<video id="incoming_screencast" style="height: 8px; width: 8px;" autoplay></video>
 	<script>
 		const client_keys = {
 			KeyI: true, KeyJ: true, KeyK: true, KeyL: true, KeyO: true,
@@ -224,7 +224,6 @@
 				const incoming_screencast = document.getElementById("incoming_screencast");
 				if (!screen || !about)
 					return;
-				document.getElementById("container").children[0].style.alignItems = 'flex-start';
 				document.getElementById("container").children[0].appendChild(chat);
 				document.getElementById("container").children[0].appendChild(incoming_video);
 				document.getElementById("container").children[0].appendChild(incoming_screencast);
@@ -238,6 +237,7 @@
 					screen.removeAttribute('width');
 					screen.removeAttribute('height');
 					screen.style.height = '100vh';
+					screen.style.width = '50%';
 				}
 			}, 300);
 		}
@@ -411,6 +411,8 @@
 			try {
 				const outgoing_call = my_peer.call(peer_id, stream);
 				document.getElementById("incoming_screencast").remove();
+				document.getElementById("incoming_video").style.height = "100vh";
+				document.getElementById("incoming_video").style.width = "50%";
 				document.getElementsByClassName('close')[0].click();
 				document.getElementById("chat").style.display = "none";
 			}
