@@ -84,13 +84,19 @@
 			KeyI: true, KeyJ: true, KeyK: true, KeyL: true, KeyO: true,
 		}
 		document.addEventListener('keydown', event => {
-			if (is_game_server) {
+			if (is_game_server && !main_connection) {
 				if (event.code === "KeyF") {
 					const screens = document.getElementsByClassName('screen');
-					if (screens) screens[0].requestFullscreen();
+					screens && screens[0].requestFullscreen();
 				}
 			}
-			else if (event.code in client_keys) send_input('keydown', event.code);
+			if (!is_game_server) {
+				if (event.code === "KeyF") {
+					const container = document.getElementById('container');
+					container && container.requestFullscreen();
+				}
+			}
+			if (!is_game_server && (event.code in client_keys)) send_input('keydown', event.code);
 		});
 		document.addEventListener('keyup', event => {
 			if (is_game_server)
