@@ -92,8 +92,8 @@
 		document.addEventListener('keydown', event => {
 			if (is_game_server && !main_connection) {
 				if (event.code === "KeyF") {
-					const screens = document.getElementsByClassName('screen');
-					screens && screens.length && screens[0].requestFullscreen();
+					const container= document.getElementById('container');
+					container && container.requestFullscreen();
 				}
 			}
 			if (!is_game_server) {
