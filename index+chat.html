@@ -51,7 +51,10 @@
 </head>
 
 <body>
-	<div id="container"></div>
+	<div id="wrapper" style="display: flex;">
+		<div id="container">
+		</div>
+	</div>
 	<div id="chat">
 		<p>
 			<span>my id:</span>
@@ -93,14 +96,10 @@
 					screens && screens.length && screens[0].requestFullscreen();
 				}
 			}
-			if (is_game_server && main_connection) {
-				if (event.code === "KeyP")
-					document.getElementById("incoming_video").requestPictureInPicture();
-			}
 			if (!is_game_server) {
 				if (event.code === "KeyF") {
-					const container = document.getElementById('container');
-					container && container.requestFullscreen();
+					const wrapper = document.getElementById('wrapper');
+					wrapper && wrapper.requestFullscreen();
 				}
 			}
 			if (!is_game_server && (event.code in client_keys)) send_input('keydown', event.code);
@@ -191,7 +190,7 @@
 			screen.removeAttribute('width');
 			screen.removeAttribute('height');
 			screen.style.height = '100vh';
-			screen.style.width = '50%';
+			screen.style.width = '100%';
 		}
 		async function initialize_fields() {
 			function init_text(id) {
@@ -241,9 +240,9 @@
 				const incoming_screencast = document.getElementById("incoming_screencast");
 				if (!screen || !about)
 					return;
-				document.getElementById("container").children[0].appendChild(chat);
-				document.getElementById("container").children[0].appendChild(incoming_video);
-				document.getElementById("container").children[0].appendChild(incoming_screencast);
+				document.getElementById("wrapper").appendChild(chat);
+				document.getElementById("wrapper").appendChild(incoming_video);
+				document.getElementById("wrapper").appendChild(incoming_screencast);
 				clearInterval(interval_to_clear);
 				if (!is_game_server) {
 					screen.remove();
@@ -320,10 +319,8 @@
 				document.getElementById('chat').style.display = "none";
 				document.getElementById('incoming_video').style.height = "100vh";
 				document.getElementById('incoming_video').style.width = "50%";
-				document.getElementById('incoming_video').style.position = "absolute";
-				document.getElementById('incoming_video').style.right = "0";
 				document.getElementById('incoming_screencast').style.height = "100vh";
-				document.getElementById('incoming_screencast').style.width = "100%";
+				document.getElementById('incoming_screencast').style.width = "50%";
 			}
 		});
 		// emulate input
@@ -419,11 +416,17 @@
 			const peer_id = document.getElementById("peer_id").value;
 			if (!peer_id)
 				return;
+			const crop_element = document.getElementById('container');
+			const crop_target = await CropTarget.fromElement(crop_element);
 			let stream;
 			try {
 				stream = await navigator.mediaDevices.getDisplayMedia({
 					video: true, systemAudio: "include", preferCurrentTab: true, selfBrowserSurface: "include",
 				});
+				if (crop_target) {
+					const [video_track] = stream.getVideoTracks();
+					await video_track.cropTo(crop_target);
+				}
 			}
 			catch (error) {
 				log('app_log', `failed to get local screen stream. ${error}`);
@@ -433,6 +436,7 @@
 			}
 			try {
 				const outgoing_call = my_peer.call(peer_id, stream);
+				document.getElementById('container').style.width = '50%';
 				document.getElementById("incoming_screencast").remove();
 				document.getElementById("incoming_video").style.height = "100vh";
 				document.getElementById("incoming_video").style.width = "50%";
