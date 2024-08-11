@@ -85,6 +85,7 @@
 	</div>
 	<video id="incoming_screencast" style="height: 8px; width: 8px;" autoplay></video>
 	<video id="incoming_video" style="height: 8px; width: 8px;" autoplay></video>
+	<video id="selfie_video" style="height: 8px; width: 8px;" autoplay></video>
 	<script>
 		const client_keys = {
 			KeyI: true, KeyJ: true, KeyK: true, KeyL: true, KeyO: true,
@@ -211,8 +212,14 @@
 			}
 
 			try {
-				await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+				const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+				const tracks = stream.getTracks();
 				use_video = true;
+				// use only video tracks from selfie translation
+				const selfie_video_only_stream = stream;
+				for (let i = 0; i < tracks.length; ++i)
+					if (tracks[i].kind === "audio") selfie_video_only_stream.removeTrack(tracks[i]);
+				document.getElementById("selfie_video").srcObject = selfie_video_only_stream;
 			}
 			catch (error) {
 				console.error(error);
@@ -223,6 +230,8 @@
 			if (!use_video) {
 				try {
 					await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+					// use phone image for selfie translation
+					document.getElementById("selfie_video").src = "./audio-call.mp4";
 				}
 				catch (error) {
 					console.error(error);
@@ -236,13 +245,15 @@
 				const screen = document.getElementById("container").getElementsByClassName("screen")[0];
 				const about = document.getElementById("container").getElementsByClassName("about")[0];
 				const chat = document.getElementById("chat");
-				const incoming_video = document.getElementById("incoming_video");
 				const incoming_screencast = document.getElementById("incoming_screencast");
+				const incoming_video = document.getElementById("incoming_video");
+				const selfie_video = document.getElementById("selfie_video");
 				if (!screen || !about)
 					return;
 				document.getElementById("wrapper").appendChild(chat);
 				document.getElementById("wrapper").appendChild(incoming_screencast);
 				document.getElementById("wrapper").appendChild(incoming_video);
+				document.getElementById("wrapper").appendChild(selfie_video);
 				clearInterval(interval_to_clear);
 				if (!is_game_server) {
 					screen.remove();
@@ -318,9 +329,11 @@
 				console.log("connection complete");
 				document.getElementById('chat').style.display = "none";
 				document.getElementById('incoming_screencast').style.height = "100vh";
-				document.getElementById('incoming_screencast').style.width = "50%";
+				document.getElementById('incoming_screencast').style.width = "33.33%";
 				document.getElementById('incoming_video').style.height = "100vh";
-				document.getElementById('incoming_video').style.width = "50%";
+				document.getElementById('incoming_video').style.width = "33.33%";
+				document.getElementById('selfie_video').style.height = "100vh";
+				document.getElementById('selfie_video').style.width = "33.33%";
 			}
 		});
 		// emulate input
@@ -436,10 +449,12 @@
 			}
 			try {
 				const outgoing_call = my_peer.call(peer_id, stream);
-				document.getElementById('container').style.width = '50%';
+				document.getElementById('container').style.width = '33.33%';
 				document.getElementById("incoming_screencast").remove();
 				document.getElementById("incoming_video").style.height = "100vh";
-				document.getElementById("incoming_video").style.width = "50%";
+				document.getElementById("incoming_video").style.width = "33.33%";
+				document.getElementById("selfie_video").style.height = "100vh";
+				document.getElementById("selfie_video").style.width = "33.33%";
 				document.getElementsByClassName('close')[0].click();
 				document.getElementById("chat").style.display = "none";
 			}
