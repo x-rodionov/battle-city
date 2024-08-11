@@ -334,6 +334,8 @@
 				document.getElementById('incoming_video').style.width = "33.33%";
 				document.getElementById('selfie_video').style.height = "100vh";
 				document.getElementById('selfie_video').style.width = "33.33%";
+				document.getElementById('incoming_video').onclick = (e) => e.target.requestPictureInPicture();
+				document.getElementById('selfie_video').onclick = (e) => e.target.requestPictureInPicture();
 			}
 		});
 		// emulate input
@@ -457,6 +459,8 @@
 				document.getElementById("selfie_video").style.width = "33.33%";
 				document.getElementsByClassName('close')[0].click();
 				document.getElementById("chat").style.display = "none";
+				document.getElementById('incoming_video').onclick = (e) => e.target.requestPictureInPicture();
+				document.getElementById('selfie_video').onclick = (e) => e.target.requestPictureInPicture();
 			}
 			catch (error) {
 				log('app_log', `failed to start play screen cast. ${error}`);
@@ -465,7 +469,27 @@
 				return;
 			}
 		}
-	</script>
-<script type="text/javascript" src="main-67d5f4.js"></script></body>
 
+		document.addEventListener("enterpictureinpicture", (e) => {
+			const container = document.getElementById('container');
+			const incoming_screencast = document.getElementById('incoming_screencast');
+			const incoming_video = document.getElementById('incoming_video');
+			const selfie_video = document.getElementById('selfie_video');
+			container && (container.style.width = "50%");
+			incoming_screencast && (incoming_screencast.style.width = "50%");
+			incoming_video.style.width = (e.target.id === incoming_video.id) ? "0" : "50%";
+			selfie_video.style.width = (e.target.id === selfie_video.id) ? "0" : "50%";
+		}, false);
+		document.addEventListener("leavepictureinpicture", (e) => {
+			const container = document.getElementById('container');
+			const incoming_screencast = document.getElementById('incoming_screencast');
+			const incoming_video = document.getElementById('incoming_video');
+			const selfie_video = document.getElementById('selfie_video');
+			container && (container.style.width = "33.33%");
+			incoming_screencast && (incoming_screencast.style.width = "33.33%");
+			incoming_video.style.width = "33.33%";
+			selfie_video.style.width = "33.33%";
+		}, false);
+	</script>
+	<script type="text/javascript" src="main-67d5f4.js"></script></body>
 </html>
