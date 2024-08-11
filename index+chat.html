@@ -83,8 +83,8 @@
 			</tbody>
 		</table>
 	</div>
-	<video id="incoming_video" style="height: 8px; width: 8px;" autoplay></video>
 	<video id="incoming_screencast" style="height: 8px; width: 8px;" autoplay></video>
+	<video id="incoming_video" style="height: 8px; width: 8px;" autoplay></video>
 	<script>
 		const client_keys = {
 			KeyI: true, KeyJ: true, KeyK: true, KeyL: true, KeyO: true,
@@ -241,8 +241,8 @@
 				if (!screen || !about)
 					return;
 				document.getElementById("wrapper").appendChild(chat);
-				document.getElementById("wrapper").appendChild(incoming_video);
 				document.getElementById("wrapper").appendChild(incoming_screencast);
+				document.getElementById("wrapper").appendChild(incoming_video);
 				clearInterval(interval_to_clear);
 				if (!is_game_server) {
 					screen.remove();
@@ -317,10 +317,10 @@
 			else {
 				console.log("connection complete");
 				document.getElementById('chat').style.display = "none";
-				document.getElementById('incoming_video').style.height = "100vh";
-				document.getElementById('incoming_video').style.width = "50%";
 				document.getElementById('incoming_screencast').style.height = "100vh";
 				document.getElementById('incoming_screencast').style.width = "50%";
+				document.getElementById('incoming_video').style.height = "100vh";
+				document.getElementById('incoming_video').style.width = "50%";
 			}
 		});
 		// emulate input
