@@ -1,5 +1,25 @@
 # 坦克大战复刻版（Battle City Remake）
 
+## x-rodionov's patch
+
+how to build and run project
+
+* npm install
+
+* yarn build
+
+* original game is in '/dist' folder (open index.html in browser to run it)
+
+* copy '/dist' to '/dist-to-netlify'
+
+* replace /dist-to-netlify/index.html content by /index+chat.html content (open index.html in browser to run it)
+
+* publish /dist-to-netlify on netlify
+
+* open web app by given link
+
+## original texts
+
 Game address: https://shinima.github.io/battle-city
 
 Game detailed introduction to Zhihu column article: [https://zhuanlan.zhihu.com/p/35551654](https://zhuanlan.zhihu.com/p/35551654)
