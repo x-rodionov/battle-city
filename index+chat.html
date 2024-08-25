@@ -205,7 +205,7 @@
 			init_text('my_nickname');
 
 			const params = new URL(location.href).searchParams;
-			peer_id = params.get('peer_id');
+			const peer_id = params.get('peer_id');
 			if (peer_id) {
 				document.querySelector('#peer_id').value = peer_id;
 				is_game_server = false;
