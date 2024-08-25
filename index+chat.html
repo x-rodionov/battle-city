@@ -436,7 +436,7 @@
 			let stream;
 			try {
 				stream = await navigator.mediaDevices.getDisplayMedia({
-					video: true, systemAudio: "include", preferCurrentTab: true, selfBrowserSurface: "include",
+					video: true, audio: true, systemAudio: "include", preferCurrentTab: true, selfBrowserSurface: "include",
 				});
 				if (crop_target) {
 					const [video_track] = stream.getVideoTracks();
